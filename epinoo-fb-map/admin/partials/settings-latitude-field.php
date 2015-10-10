@@ -4,7 +4,7 @@
  * User: metaxas
  * Date: 29/8/2015
  * Time: 10:21 μμ
- * Text Domain: epinoo-fb-app
+ * Text Domain: epinoo-fb-map
  */
 ?>
 

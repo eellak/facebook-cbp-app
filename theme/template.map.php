@@ -9,8 +9,13 @@ global $gk_tpl;
 $fullwidth = true;
 
 gk_load('header');
-wp_enqueue_script('fb-app', gavern_file_uri('js/facebook.js'), false, '1');
+wp_enqueue_script('fb-app', gavern_file_uri('js/facebook.js'), false, '');
 gk_load('before', null, array('sidebar' => false));
+show_admin_bar(false);
+
+if (!is_user_logged_in()) {
+    auth_redirect();
+}
 
 ?>
 

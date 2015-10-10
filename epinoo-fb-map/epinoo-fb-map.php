@@ -7,13 +7,19 @@
  * Author: George Metaxas
  * Author URI: http://www.k-codex.gr
  * License: GPL2
- * Text Domain: epinoo-fb-app
+ * Text Domain: epinoo-fb-map
  */
 
 
 // If this file is called directly, abort.
 if (!defined('WPINC')) {
     die;
+}
+
+add_action('plugins_loaded', 'epinoo_fb_map_local_init');
+function epinoo_fb_map_local_init() {
+    $plugin_dir = basename( dirname( __FILE__ ) );
+    error_log(load_plugin_textdomain( 'epinoo-fb-map', false, $plugin_dir. '/lang/' ));
 }
 
 /*
@@ -57,7 +63,11 @@ FB.getLoginStatus(function(response) {
 
 class epinoo_fp_map_widget extends WP_Widget {
     ## Initialize
-    function epinoo_fp_map_widget() {
+    function __construct() {
+
+//    $plugin_dir = basename( dirname( __FILE__ ) );
+//    error_log(load_plugin_textdomain( 'epinoo-fb-map', false, $plugin_dir. '/lang/' ));
+
         $widget_ops = array(
             'classname' => 'widget_epinoo_fb_map',
             'description' => "Epinoo Facebook Google Map for displaying nearby users."
@@ -65,7 +75,7 @@ class epinoo_fp_map_widget extends WP_Widget {
 
         $control_ops = array('width' => 430, 'height' => 500);
         $this->opts = get_option('epinoo_fb_app_settings');
-        parent::WP_Widget('epinoo_fb_map', 'Epinoo FB Map', $widget_ops, $control_ops);
+        parent::__construct('epinoo_fb_map', 'Epinoo FB Map', $widget_ops, $control_ops);
     }
 
     function generate_map()
@@ -74,6 +84,8 @@ class epinoo_fp_map_widget extends WP_Widget {
         wp_enqueue_script('google-maps', 'https://maps.google.com/maps/api/js?sensor=true', false, '3');
         wp_register_script('fb-map', plugins_url('js/fb-map.js', __FILE__), false, '1.0', false);
         wp_enqueue_script('fb-map');
+        wp_register_style( 'fb-css', plugins_url('css/fb-map.css', __FILE__), array(), '1.0');
+        wp_enqueue_style( 'fb-css' );
 
         $current_user = wp_get_current_user();
         //echo 'Username: ' . $current_user->user_login . '<br />';
@@ -82,78 +94,73 @@ class epinoo_fp_map_widget extends WP_Widget {
         //echo 'User last name: ' . $current_user->user_lastname . '<br />';
         //echo 'User display name: ' . $current_user->display_name . '<br />';
         //echo 'User ID: ' . $current_user->ID . '<br />';
-        $user_lat = get_cimyFieldValue($current_user->ID, 'LATITUDE');
-        $user_lng = get_cimyFieldValue($current_user->ID, 'LONGITUDE');
 
-        // Generate a random location for testing purposes
-        if (!$user_lat) {
-            ///////////////////HERHERERE
-            $latitude = 38.0;
-            $longitude = 23.0;
-            $rand = mt_rand();
-            if ($rand % 2 == 1) {
-                $latitude = 38.0 - lcg_value();
-            } else {
-                $latitude = 38.0 + lcg_value();
-            }
-            $rand = mt_rand();
-            if ($rand % 2 == 1) {
-                $longitude = 23.0 - lcg_value();
-            } else {
-                $longitude = 23.0 + lcg_value();
-            }
+        //$latitude_value = get_cimyFieldValue($current_user->ID, $this->opts['latitude_user_field_name']);
+        //$longitude_value = get_cimyFieldValue($current_user->ID, $this->opts['longitude_user_field_name']);
+        $user_location_query = "SELECT wfl.lat, wfl.long, wfl.member_id FROM wppl_friends_locator wfl WHERE member_id =  %d";
+        $user_location = $wpdb->get_results($wpdb->prepare($user_location_query, $current_user->ID));
 
-            $result = set_cimyFieldValue($current_user->ID, 'LATITUDE', $latitude);
-            $result = set_cimyFieldValue($current_user->ID, 'LONGITUDE', $longitude);
+        if ($user_location && count($user_location) >0) {
+            $user_location = $user_location[0];
         }
 
-        $latitude_value = get_cimyFieldValue($current_user->ID, $this->opts['latitude_user_field_name']);
-        $longitude_value = get_cimyFieldValue($current_user->ID, $this->opts['longitude_user_field_name']);
+        if ($user_location) {
+            #Haversine formula
+            $query = "SELECT * FROM (SELECT ROUND(6371 * acos(cos(radians(lat_long.lat) ) * cos(radians('%s') ) * cos(radians('%s') - radians(lat_long.lng) ) + sin(radians(lat_long.lat) ) * sin(radians('%s') ) ), 3) AS distance,
+                             user_id,
+                             lat,
+                             lng,
+                             display_name
+                          FROM (
+                                   SELECT loc.member_id AS user_id,
+                                          loc.lat AS lat,
+                                          loc.long AS lng,
+                                          usr.display_name AS display_name
+                                     FROM
+                                          wppl_friends_locator loc
 
-        #Haversine formula
-        $query = "SELECT ROUND(6371 * acos(cos(radians(lat_long.lat) ) * cos(radians('%s') ) * cos(radians('%s') - radians(lat_long.lng) ) + sin(radians(lat_long.lat) ) * sin(radians('%s') ) ), 3) AS distance,
-                         user_id,
-                         lat,
-                         lng,
-                         display_name
-                      FROM (
-                               SELECT lat.user_id AS user_id,
-                                      lat.value AS lat,
-                                      lng.value AS lng,
-                                      usr.display_name AS display_name
-                                 FROM wordpress.wp_cimy_uef_data lat
-                                      JOIN
-                                        wordpress.wp_cimy_uef_data lng ON lat.user_id = lng.user_id
-                                      JOIN
-                                        wordpress.wp_users usr ON lng.user_id = usr.ID
-                                WHERE lat.field_id = 1 AND
-                                      lng.field_id = 2 AND
-                                      lng.user_id <> %d) lat_long";
+                                     JOIN
+                                          $wpdb->users usr ON loc.member_id = usr.ID
+                                     WHERE
+                                          loc.member_id <> %d) lat_long) lat_long_tbl
+                          WHERE lat_long_tbl.distance <= '%f'";
 
-        $nearby_users = $wpdb->get_results($wpdb->prepare($query, $latitude_value, $longitude_value, $latitude_value, $current_user->ID));
-
-        if ($nearby_users) {
-            printf(__("List of users from sql select query: %d \n <br/>", "epinoo-fb-app"), count($nearby_users));
+            $nearby_users = $wpdb->get_results($wpdb->prepare($query, $user_location->lat, $user_location->long, $user_location->lat, $current_user->ID, $this->opts['distance_from_user'] ));
 
             echo "<script type=\"text/javascript\">\n";
-            echo "var plainLocations = [\n";
-            echo "[" . $latitude_value .", " . $longitude_value.",'".$current_user->display_name ."'],\n";
+            echo "var userLat = " . $user_location->lat . ";";
+            echo "var userLong = " . $user_location->long . ";";
 
-            foreach ($nearby_users as $nearby_user) {
-                //echo "latlng : new google.maps.LatLng(".$nearby_user->lat.", ".$nearby_user->lng."),\n";
+            if ($nearby_users) {
+                echo "var plainLocations = [\n";
+                echo "[" . $user_location->lat .", " . $user_location->long.",'".$current_user->display_name ."'],\n";
 
-                echo "[" .$nearby_user->lat . ", " . $nearby_user->lng. ",'".$nearby_user->display_name ."'],\n";
+                foreach ($nearby_users as $nearby_user) {
+                    echo "[" .$nearby_user->lat . ", " . $nearby_user->lng. ",'".$nearby_user->display_name ."',".$nearby_user->distance."],\n";
+                }
+
+                echo "];\n";
+                echo "</script>\n";
+                echo "<br/>";
+                echo "<p>";
+                printf(__("List of nearby users: %d \n <br/>", "epinoo-fb-map"), count($nearby_users));
+                echo "</p>";
+            } else {
+                echo "var plainLocations = [];\n";
+                echo "</script>\n";
+                echo "<br/>";
+                printf(__("No nearby users found...", 'epinoo-fb-map'));
             }
 
-            echo "];\n";
-            echo "var userLat = " . $latitude_value . ";";
-            echo "var userLong = " . $longitude_value . ";";
-            echo "</script>\n";
-        } else {
-            printf(_("<br/>No nearby users found...\n", 'epinoo-fb-map'));
+
+            echo "<div id=\"map\"></div>\n";
+        }
+        else {
+            echo "<div id=\"error\"><p>";
+            printf(__('Could not find any users', 'epinoo-fb-map'));
+            echo "</p></div>\n";
         }
 
-        echo "<div id=\"map\" style=\"width: 800px; height: 600px;\"></div>\n";
     }
 
     ## Display the Widget
@@ -179,10 +186,11 @@ class epinoo_fp_map_widget extends WP_Widget {
 
 }
 
-function epinoo_fb_map_init()
-{
+function epinoo_fb_map_init() {
     register_widget('epinoo_fp_map_widget');
 }
+
+error_log("asdfasdfasdf");
 
 add_action('widgets_init', 'epinoo_fb_map_init');
 
@@ -194,7 +202,6 @@ if ( is_admin() ) {
 
     add_action( 'admin_menu', array($plugin_admin, 'add_menu_items'));
     add_action( 'admin_init', array($plugin_admin, 'create_settings'));
-
 }
 
 ?>

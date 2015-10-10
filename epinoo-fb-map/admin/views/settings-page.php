@@ -9,7 +9,7 @@
 
 <div class="wrap">
 
-    <h2>Facebook Login</h2>
+    <h2>Epinoo Facebook Community Map Plugin</h2>
 
     <form method="post" action="options.php">
         <?php
