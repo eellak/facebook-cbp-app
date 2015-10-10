@@ -34,7 +34,7 @@ if (!is_user_logged_in()) {
 
 <?php
 
-gk_load('after', null, array('sidebar' => false));
+//gk_load('after', null, array('sidebar' => false));
 gk_load('footer');
 
 // EOF
