@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: Epinoo Facebook Map\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: Sat Oct 10 2015 11:44:28 GMT+0300 (EEST)\n"
-"PO-Revision-Date: Sat Oct 10 2015 16:26:18 GMT+0300 (EEST)\n"
+"PO-Revision-Date: Sun Oct 11 2015 00:09:44 GMT+0300 (EEST)\n"
 "Last-Translator: admin <gmetaxas@gmail.com>\n"
 "Language-Team: \n"
 "Language: Greek\n"
@@ -22,17 +22,25 @@ msgstr ""
 "X-Loco-Target-Locale: el_GR\n"
 "X-Generator: Loco - https://localise.biz/"
 
-#: ../epinoo-fb-map.php:152
-msgid "No nearby users found..."
-msgstr "Δεν υπάρχουν κοντινοί χρήστες καταχωρημένοι στην εφαρμογή"
-
-#: ../admin/class-Epinoo-Facebook-App.settings.php:15
-msgid "Distance from user (in km)"
-msgstr "Απόσταση από τον χρήστη (σε χλμ)"
+#: ../epinoo-fb-map.php:156
+msgid "Epinoo Facebook Header plugin for including Facebook related code."
+msgstr ""
 
 #: ../admin/class-Epinoo-Facebook-App.settings.php:16
-msgid "HTML text to display in the map bubbles"
-msgstr "Κείμενο HTML για προβολή στις φούσκες των χρηστών (στον χάρτη)"
+msgid "The Facebook App ID to use"
+msgstr "Το Facebook App ID που θα χρησιμοποιηθεί."
+
+#: ../admin/class-Epinoo-Facebook-App.settings.php:17
+msgid "The Facebook App Secret to use"
+msgstr "Το Facebook App Secret που θα χρησιμοποιηθεί."
+
+#: ../admin/partials/settings-fb-app-id-field.php:12
+msgid "Specify the corresponding Facebook App Id to use"
+msgstr "Δώστε το Facebook App Id που θα συσχετιστεί/χρησιμοποιηθεί."
+
+#: ../admin/partials/settings-fb-app-secret-field.php:12
+msgid "Specify the corresponding Facebook App Secret to use"
+msgstr "Δώστε το Facebook App Secret που θα συσχετιστεί/χρησιμοποιηθεί."
 
 #. Name of the plugin
 msgid "Epinoo Facebook Map"
@@ -58,16 +66,24 @@ msgstr "George Metaxas"
 msgid "http://www.k-codex.gr"
 msgstr "http://www.k-codex.gr"
 
-#: ../epinoo-fb-map.php:146
+#: ../epinoo-fb-map.php:107
 #, php-format
 msgid ""
 "List of nearby users: %d \n"
 " <br/>"
 msgstr "Υπάρχουν: %d κοντινοί χρήστες<br/>"
 
-#: ../epinoo-fb-map.php:160
+#: ../epinoo-fb-map.php:113
+msgid "No nearby users found..."
+msgstr "Δεν υπάρχουν κοντινοί χρήστες καταχωρημένοι στην εφαρμογή"
+
+#: ../epinoo-fb-map.php:121
 msgid "Could not find any users"
 msgstr "Δεν βρέθηκαν καθόλου χρήστες"
+
+#: ../admin/class-Epinoo-Facebook-App.settings.php:15
+msgid "Distance from user (in km)"
+msgstr "Απόσταση από τον χρήστη (σε χλμ)"
 
 #: ../admin/partials/settings-user-map-text-field.php:12
 msgid "Text to display in the map in the user's bubble"

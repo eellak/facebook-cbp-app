@@ -17,49 +17,10 @@ if (!defined('WPINC')) {
 }
 
 add_action('plugins_loaded', 'epinoo_fb_map_local_init');
-function epinoo_fb_map_local_init() {
+function epinoo_fb_map_local_init() {-
     $plugin_dir = basename( dirname( __FILE__ ) );
-    error_log(load_plugin_textdomain( 'epinoo-fb-map', false, $plugin_dir. '/lang/' ));
+    load_plugin_textdomain( 'epinoo-fb-map', false, $plugin_dir. '/lang/' );
 }
-
-/*
-
-/*
- *
-Setup Facebook Login
-Apps on Facebook are most useful when they are personalized based on who is using them. The following snippets of code add a basic Facebook Login integration.
-Place an element anywhere within the <body> tag where you want to greet the user:
-
-<h1 id="fb-welcome"></h1>
-
-Include a script to let a person log into your app. It should automatically open the Login Dialog when someone first uses your app. Place the code right after the FB.init call.
-
-// Place following code axcfter FB.init call.
-
-function onLogin(response) {
-  if (response.status == 'connected') {
-    FB.api('/me?fields=first_name', function(data) {
-      var welcomeBlock = document.getElementById('fb-welcome');
-      welcomeBlock.innerHTML = 'Hello, ' + data.first_name + '!';
-    });
-  }
-}
-
-FB.getLoginStatus(function(response) {
-  // Check login status on load, and if the user is
-  // already logged in, go directly to the welcome message.
-  if (response.status == 'connected') {
-    onLogin(response);
-  } else {
-    // Otherwise, show Login dialog first.
-    FB.login(function(response) {
-      onLogin(response);
-    }, {scope: 'user_friends, email'});
-  }
-});
-
- */
-
 
 class epinoo_fp_map_widget extends WP_Widget {
     ## Initialize
@@ -97,7 +58,7 @@ class epinoo_fp_map_widget extends WP_Widget {
 
         //$latitude_value = get_cimyFieldValue($current_user->ID, $this->opts['latitude_user_field_name']);
         //$longitude_value = get_cimyFieldValue($current_user->ID, $this->opts['longitude_user_field_name']);
-        $user_location_query = "SELECT wfl.lat, wfl.long, wfl.member_id FROM wppl_friends_locator wfl WHERE member_id =  %d";
+        $user_location_query = "SELECT wfl.lat, wfl.long, wfl.member_id, usermeta.meta_value as facebook_uid FROM wppl_friends_locator wfl JOIN $wpdb->usermeta usermeta ON usermeta.user_id = wfl.member_id WHERE member_id =  %d AND meta_key = 'facebook_uid'";
         $user_location = $wpdb->get_results($wpdb->prepare($user_location_query, $current_user->ID));
 
         if ($user_location && count($user_location) >0) {
@@ -110,19 +71,25 @@ class epinoo_fp_map_widget extends WP_Widget {
                              user_id,
                              lat,
                              lng,
-                             display_name
+                             display_name,
+                             facebook_uid
                           FROM (
                                    SELECT loc.member_id AS user_id,
                                           loc.lat AS lat,
                                           loc.long AS lng,
-                                          usr.display_name AS display_name
+                                          usr.display_name AS display_name,
+                                          usrmeta.meta_value AS facebook_uid
                                      FROM
                                           wppl_friends_locator loc
 
                                      JOIN
                                           $wpdb->users usr ON loc.member_id = usr.ID
+                                     JOIN
+                                          $wpdb->usermeta usrmeta ON usr.ID = usrmeta.user_id
                                      WHERE
-                                          loc.member_id <> %d) lat_long) lat_long_tbl
+                                          loc.member_id <> %d
+                                          AND
+                                           meta_key = 'facebook_uid') lat_long) lat_long_tbl
                           WHERE lat_long_tbl.distance <= '%f'";
 
             $nearby_users = $wpdb->get_results($wpdb->prepare($query, $user_location->lat, $user_location->long, $user_location->lat, $current_user->ID, $this->opts['distance_from_user'] ));
@@ -133,10 +100,10 @@ class epinoo_fp_map_widget extends WP_Widget {
 
             if ($nearby_users) {
                 echo "var plainLocations = [\n";
-                echo "[" . $user_location->lat .", " . $user_location->long.",'".$current_user->display_name ."'],\n";
+                echo "[" . $user_location->lat .", " . $user_location->long.",'".$current_user->display_name ."', '0', '".$current_user->facebook_uid ."'],\n";
 
                 foreach ($nearby_users as $nearby_user) {
-                    echo "[" .$nearby_user->lat . ", " . $nearby_user->lng. ",'".$nearby_user->display_name ."',".$nearby_user->distance."],\n";
+                    echo "[" .$nearby_user->lat . ", " . $nearby_user->lng. ",'".$nearby_user->display_name ."',".$nearby_user->distance.",'".$nearby_user->facebook_uid."'],\n";
                 }
 
                 echo "];\n";
@@ -186,11 +153,56 @@ class epinoo_fp_map_widget extends WP_Widget {
 
 }
 
-function epinoo_fb_map_init() {
-    register_widget('epinoo_fp_map_widget');
+class epinoo_fb_header_widget extends WP_Widget {
+    ## Initialize
+    function __construct() {
+
+        $widget_ops = array(
+            'classname' => 'widget_epinoo_fb_header',
+            'description' => __("Epinoo Facebook Header plugin for including Facebook related code.", 'epinoo-fb-map')
+        );
+
+        $this->opts = get_option('epinoo_fb_app_settings');
+        parent::__construct('epinoo_fb_header_widget', 'Epinoo FB Header', $widget_ops, $control_ops);
+    }
+
+
+    ## Display the Widget
+    function widget($args, $instance)
+    {
+        extract($args);
+
+
+        echo $before_widget;
+        echo "<script type=\"text/javascript\">\n";
+        $fb_app_id = $this->opts['fb_app_id'];
+        $fb_app_secret = $this->opts['fb_app_secret'];
+        echo "window.fbAsyncInit = function() {\n".
+            "FB.init({\n".
+      "appId      : '$fb_app_id',\n".
+      "xfbml      : true,\n".
+      "version    : 'v2.4'\n".
+    "});\n".
+    "// ADD ADDITIONAL FACEBOOK CODE HERE\n".
+    "};\n".
+     "   (function(d, s, id){\n".
+     "       var js, fjs = d.getElementsByTagName(s)[0];\n".
+     "if (d.getElementById(id)) {return;}\n".
+     "js = d.createElement(s); js.id = id;\n".
+     "js.src = \"//connect.facebook.net/en_US/sdk.js\";\n".
+         "fjs.parentNode.insertBefore(js, fjs);\n".
+         "}(document, 'script', 'facebook-jssdk'));\n";
+        echo "</script>\n";
+        echo $after_widget;
+    }
+
 }
 
-error_log("asdfasdfasdf");
+
+function epinoo_fb_map_init() {
+    register_widget('epinoo_fp_map_widget');
+    register_widget('epinoo_fb_header_widget');
+}
 
 add_action('widgets_init', 'epinoo_fb_map_init');
 

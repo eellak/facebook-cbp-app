@@ -13,7 +13,8 @@ class Epinoo_Facebook_App_Settings
         $this->views = trailingslashit(plugin_dir_path(dirname(__FILE__)) . 'admin/partials/');
         $this->fields = array(
             'distance_from_user' => __('Distance from user (in km)', 'epinoo-fb-map'),
-            'user_map_text' => __('HTML text to display in the map bubbles', 'epinoo-fb-map'),
+            'fb_app_id' => __('The Facebook App ID to use', 'epinoo-fb-map'),
+            'fb_app_secret' => __('The Facebook App Secret to use', 'epinoo-fb-map'),
         );
 
     }
@@ -58,16 +59,26 @@ class Epinoo_Facebook_App_Settings
     }
 
     /**
-     * Display the longitude user field name field
+     * Display the fb_app_id setting
      */
-    public function display_user_map_text() {
+    public function display_fb_app_id() {
         // Now grab the options based on what we're looking for
         $opts = get_option('epinoo_fb_app_settings');
-        $user_map_text = isset($opts['user_map_text']) ? $opts['user_map_text'] : htmlspecialchars('<p>$1%s</p>', ENT_HTML5);
+        $fb_app_id = isset($opts['fb_app_id']) ? $opts['fb_app_id'] : '';
         // And display the view
-        include_once $this->views . 'settings-user-map-text-field.php';
+        include_once $this->views . 'settings-fb-app-id-field.php';
     }
 
+    /**
+     * Display the fb_app_secret setting
+     */
+    public function display_fb_app_secret() {
+        // Now grab the options based on what we're looking for
+        $opts = get_option('epinoo_fb_app_settings');
+        $fb_app_secret = isset($opts['fb_app_secret']) ? $opts['fb_app_secret'] : '';
+        // And display the view
+        include_once $this->views . 'settings-fb-app-secret-field.php';
+    }
 
     /**
      * Simple sanitize function

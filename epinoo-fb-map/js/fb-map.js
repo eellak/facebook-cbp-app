@@ -10,7 +10,9 @@ function fb_map_initialise() {
             var lat = plainLocations[i][0];
             var lng = plainLocations[i][1];
             var title = plainLocations[i][2] + "";
+            var fbId = plainLocations[i][4];
 
+            var cnt = "<a target='_blank' href='https://facebook.com/" + fbId + "'>" + title + "</a>";
             if (i == 0) {
                 icon = 'http://www.clker.com/cliparts/b/7/6/5/1308001441853739087google maps pin.svg.thumb.png';
             }
@@ -24,16 +26,16 @@ function fb_map_initialise() {
                 position: latlng,
                 map: map,
                 icon: icon,
-                title: title
+                //title: title
             });
 
-            var infowindow = new google.maps.InfoWindow()
+            var infowindow = new google.maps.InfoWindow();
             google.maps.event.addListener(marker, 'click', (function (marker, content, infowindow) {
                 return function () {
                     infowindow.setContent(content);
                     infowindow.open(map, marker);
                 };
-            })(marker, title, infowindow));
+            })(marker, cnt, infowindow));
         }
     }
 };

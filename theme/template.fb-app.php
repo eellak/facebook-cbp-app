@@ -7,7 +7,6 @@ Template Name: Facebook App Page
 global $gk_tpl;
 
 gk_load('header');
-wp_enqueue_script('fb-app', 'js/facebook.js', false, '1');
 gk_load('before');
 show_admin_bar(false);
 
@@ -16,6 +15,8 @@ if (!is_user_logged_in()) {
 }
 
 ?>
+
+<?php the_widget('epinoo_fb_header_widget'); ?>
 
 <section id="gk-mainbody">
         <?php the_post(); ?>
