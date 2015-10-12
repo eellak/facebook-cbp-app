@@ -4,7 +4,7 @@
  * User: metaxas
  * Date: 29/8/2015
  * Time: 10:05 μμ
- * Text Domain: epinoo-fb-app
+ * Text Domain: epinoo-fb-map
  */
 class Epinoo_Facebook_App_Settings
 {
@@ -12,10 +12,9 @@ class Epinoo_Facebook_App_Settings
     public function __construct() {
         $this->views = trailingslashit(plugin_dir_path(dirname(__FILE__)) . 'admin/partials/');
         $this->fields = array(
-            'distance_from_user' => __('Distance from user (in km)', 'epinoo-fb-app'),
-            'latitude_user_field_name' => __('Latitude user field', 'epinoo-fb-app'),
-            'longitude_user_field_name' => __('Longitude user field', 'epinoo-fb-app'),
-            'user_map_text' => __('HTML text to display in the map bubbles', 'epinoo-fb-app'),
+            'distance_from_user' => __('Distance from user (in km)', 'epinoo-fb-map'),
+            'fb_app_id' => __('The Facebook App ID to use', 'epinoo-fb-map'),
+            'fb_app_secret' => __('The Facebook App Secret to use', 'epinoo-fb-map'),
         );
 
     }
@@ -54,44 +53,32 @@ class Epinoo_Facebook_App_Settings
     public function display_distance_from_user() {
         // Now grab the options based on what we're looking for
         $opts = get_option('epinoo_fb_app_settings');
-        $distance_from_user = isset($opts['distance_from__user']) ? $opts['distance_from__user'] : '60';
+        $distance_from_user = isset($opts['distance_from_user']) ? $opts['distance_from_user'] : '60';
         // And display the view
         include_once $this->views . 'settings-distance-field.php';
     }
 
     /**
-     * Display the latitude user field name field
+     * Display the fb_app_id setting
      */
-    public function display_latitude_user_field_name() {
+    public function display_fb_app_id() {
         // Now grab the options based on what we're looking for
         $opts = get_option('epinoo_fb_app_settings');
-        $latitude_user_field_name = isset($opts['latitude_user_field_name']) ? $opts['latitude_user_field_name'] : 'LATITUDE';
+        $fb_app_id = isset($opts['fb_app_id']) ? $opts['fb_app_id'] : '';
         // And display the view
-        include_once $this->views . 'settings-latitude-field.php';
+        include_once $this->views . 'settings-fb-app-id-field.php';
     }
 
     /**
-     * Display the longitude user field name field
+     * Display the fb_app_secret setting
      */
-    public function display_longitude_user_field_name() {
+    public function display_fb_app_secret() {
         // Now grab the options based on what we're looking for
         $opts = get_option('epinoo_fb_app_settings');
-        $longitude_user_field_name = isset($opts['longitude_user_field_name']) ? $opts['longitude_user_field_name'] : 'LONGITUDE';
+        $fb_app_secret = isset($opts['fb_app_secret']) ? $opts['fb_app_secret'] : '';
         // And display the view
-        include_once $this->views . 'settings-longitude-field.php';
+        include_once $this->views . 'settings-fb-app-secret-field.php';
     }
-
-    /**
-     * Display the longitude user field name field
-     */
-    public function display_user_map_text() {
-        // Now grab the options based on what we're looking for
-        $opts = get_option('epinoo_fb_app_settings');
-        $user_map_text = isset($opts['user_map_text']) ? $opts['user_map_text'] : htmlspecialchars('<p>$1%s</p>', ENT_HTML5);
-        // And display the view
-        include_once $this->views . 'settings-user-map-text-field.php';
-    }
-
 
     /**
      * Simple sanitize function
