@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: Epinoo Facebook Map\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: Sat Oct 10 2015 11:44:28 GMT+0300 (EEST)\n"
-"PO-Revision-Date: Sun Oct 11 2015 00:09:44 GMT+0300 (EEST)\n"
+"PO-Revision-Date: Sat Oct 24 2015 15:51:17 GMT+0300 (EEST)\n"
 "Last-Translator: admin <gmetaxas@gmail.com>\n"
 "Language-Team: \n"
 "Language: Greek\n"
@@ -75,11 +75,11 @@ msgstr "Υπάρχουν: %d κοντινοί χρήστες<br/>"
 
 #: ../epinoo-fb-map.php:113
 msgid "No nearby users found..."
-msgstr "Δεν υπάρχουν κοντινοί χρήστες καταχωρημένοι στην εφαρμογή"
+msgstr "Δεν βρέθηκαν χρήστες κοντά σας"
 
 #: ../epinoo-fb-map.php:121
 msgid "Could not find any users"
-msgstr "Δεν βρέθηκαν καθόλου χρήστες"
+msgstr "Δεν βρέθηκαν χρήστες κοντά σας"
 
 #: ../admin/class-Epinoo-Facebook-App.settings.php:15
 msgid "Distance from user (in km)"

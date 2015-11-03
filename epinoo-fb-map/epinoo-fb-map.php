@@ -123,9 +123,15 @@ class epinoo_fp_map_widget extends WP_Widget {
             echo "<div id=\"map\"></div>\n";
         }
         else {
+            echo "<script type=\"text/javascript\">\n";
+            echo "var userLat = 37.9887083;";
+            echo "var userLong = 23.7314012;";
+            echo "var plainLocations = [];\n";
+            echo "</script>\n";
             echo "<div id=\"error\"><p>";
             printf(__('Could not find any users', 'epinoo-fb-map'));
             echo "</p></div>\n";
+            echo "<div id=\"map\"></div>\n";
         }
 
     }
