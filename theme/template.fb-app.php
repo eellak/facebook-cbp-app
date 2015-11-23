@@ -4,11 +4,11 @@
 Template Name: Facebook App Page
 */
 
-global $gk_tpl;
+get_header();
 
-gk_load('header');
-gk_load('before');
-show_admin_bar(false);
+if (! is_admin()) {
+    show_admin_bar(false);
+}
 
 if (!is_user_logged_in()) {
     auth_redirect();
@@ -30,7 +30,5 @@ if (!is_user_logged_in()) {
 
 <?php
 
-//gk_load('after');
-gk_load('footer');
-
+get_footer();
 // EOF
