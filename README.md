@@ -1,3 +1,15 @@
+> [!WARNING]
+> **This repository is no longer maintained.**
+> It is not receiving updates and contains known security vulnerabilities.
+> Do not use this code in production or in any security-sensitive environment.
+> Use at your own risk.
+
+> [!WARNING]
+> **Αυτό το αποθετήριο δεν συντηρείται πλέον.**
+> Δεν λαμβάνει ενημερώσεις και περιέχει γνωστά κενά ασφαλείας.
+> Μην χρησιμοποιείτε αυτόν τον κώδικα σε παραγωγικό περιβάλλον ή σε εφαρμογές όπου η ασφάλεια είναι κρίσιμη.
+> Η χρήση γίνεται με δική σας ευθύνη.
+
 # Facebook App for Epinoo.gr
 ####Contributor: George Metaxas
 ####Tested on: WP 4.3
